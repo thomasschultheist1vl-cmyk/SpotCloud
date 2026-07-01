@@ -1,0 +1,15 @@
+# Archivos del sistema/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependencias o carpetas temporales si se agregan despues
+vendor/
+node_modules/
+tmp/
+cache/
+
+# Configuraciones locales sensibles
+.env
+*.log
