@@ -3,7 +3,7 @@
     <div class="cancion-reproductor">
         <img id="playerCover" src="" alt="">
         <div>
-            <strong id="playerTitle">Selecciona una cancion</strong>
+            <strong id="playerTitle">Selecciona una canción</strong>
             <span id="playerArtist">SpotCloud</span>
         </div>
     </div>

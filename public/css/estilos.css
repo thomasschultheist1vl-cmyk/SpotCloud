@@ -1,4 +1,4 @@
-﻿/* ==================== CONFIGURACION GENERAL ==================== */
+/* ==================== CONFIGURACION GENERAL ==================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,6 +8,7 @@
 body {
   background: #050505;
   color: #f5f5f5;
+  cursor: default;
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
   padding-bottom: 92px;
@@ -21,6 +22,32 @@ a {
 img {
   display: block;
   max-width: 100%;
+}
+
+.barra-superior,
+.titulo-pagina,
+.encabezado-seccion,
+.menu-admin-pasos,
+.tarjeta-album,
+.fila-cancion,
+.item-historial,
+.panel h2,
+.boton,
+.selector-archivo {
+  user-select: none;
+}
+
+input,
+textarea {
+  cursor: text;
+}
+
+button,
+a,
+select,
+.selector-archivo,
+.opcion-checkbox {
+  cursor: pointer;
 }
 
 
@@ -166,10 +193,12 @@ img {
 }
 
 .boton {
+  align-items: center;
   border: 0;
   display: inline-flex;
   justify-content: center;
   margin-top: 18px;
+  min-height: 44px;
   padding: 12px 18px;
 }
 
@@ -189,10 +218,24 @@ img {
   color: #f5f5f5;
 }
 
+.boton-peligro {
+  background: #3a1111;
+  color: #ff8f8f;
+}
+
+.boton-peligro:hover {
+  background: #5a1717;
+}
+
 .boton-reproducir {
+  align-items: center;
   background: #242424;
   border: 1px solid #333333;
   color: #f5f5f5;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 112px;
   padding: 9px 12px;
 }
 
@@ -229,6 +272,64 @@ img {
   width: 100%;
 }
 
+.formulario input[type="checkbox"] {
+  accent-color: #ffd900;
+  height: 18px;
+  min-width: 18px;
+  width: 18px;
+}
+
+.selector-archivo {
+  align-items: center;
+  background: #101010;
+  border: 1px solid #242424;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1rem;
+  font-weight: 400;
+  min-height: 58px;
+  padding: 10px;
+  position: relative;
+  text-transform: none;
+  width: 100%;
+}
+
+.selector-archivo span {
+  background: #ffd900;
+  border: 0;
+  border-radius: 6px;
+  color: #080808;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.input-archivo {
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+.texto-archivo {
+  color: #9a9a9a;
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  margin-top: -4px;
+}
+
+.ayuda-campo {
+  color: #9a9a9a;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
 .formulario input:focus,
 .formulario select:focus,
 .formulario textarea:focus,
@@ -259,6 +360,7 @@ img {
 .grilla-albumes,
 .dos-columnas,
 .grilla-admin,
+.grilla-eliminar,
 .form-busqueda {
   display: grid;
   gap: 22px;
@@ -278,9 +380,112 @@ img {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.grilla-eliminar {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 24px;
+}
+
+.grilla-admin .formulario {
+  display: flex;
+  flex-direction: column;
+}
+
+.grilla-admin .formulario .boton {
+  margin-top: auto;
+  width: 100%;
+}
+
+.menu-admin-pasos {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 24px;
+}
+
+.paso-admin {
+  background: #151515;
+  border: 1px solid #242424;
+  border-radius: 8px;
+  color: #f5f5f5;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  text-align: left;
+}
+
+.paso-admin:hover,
+.paso-admin.activo {
+  border-color: #ffd900;
+}
+
+.paso-admin.activo {
+  background: #202020;
+}
+
+.paso-admin span {
+  align-items: center;
+  background: #ffd900;
+  border-radius: 50%;
+  color: #080808;
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 900;
+  height: 26px;
+  justify-content: center;
+  margin-bottom: 6px;
+  width: 26px;
+}
+
+.paso-admin strong {
+  font-size: 1rem;
+}
+
+.paso-admin small {
+  color: #9a9a9a;
+  font-size: 0.78rem;
+}
+
+.secciones-admin {
+  display: grid;
+  justify-items: center;
+}
+
+.seccion-admin {
+  display: none;
+}
+
+.seccion-admin.activa {
+  display: grid;
+}
+
+.panel-paso {
+  max-width: 560px;
+  min-height: 420px;
+  width: 100%;
+}
+
+.panel-paso-ancho {
+  max-width: 760px;
+}
+
+.panel-paso .boton {
+  width: 100%;
+}
+
 .form-busqueda {
   grid-template-columns: minmax(0, 1fr) auto;
   margin-bottom: 24px;
+}
+
+.form-busqueda input,
+.form-busqueda .boton {
+  height: 48px;
+}
+
+.form-busqueda .boton {
+  margin-top: 0;
+  padding: 0 28px;
 }
 
 .tarjeta-album,
@@ -296,6 +501,52 @@ img {
 .panel-lateral,
 .panel {
   padding: 18px;
+}
+
+.lista-checkbox {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.opcion-checkbox {
+  align-items: center;
+  background: #101010;
+  border: 1px solid #242424;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 18px minmax(0, 1fr);
+  padding: 10px;
+  text-transform: none;
+}
+
+.formulario .opcion-checkbox {
+  color: #f5f5f5;
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: none;
+}
+
+.opcion-checkbox:hover {
+  border-color: #ffd900;
+}
+
+.opcion-checkbox strong,
+.opcion-checkbox small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.opcion-checkbox small {
+  color: #9a9a9a;
+  font-size: 0.82rem;
+  font-weight: 400;
+  margin-top: 2px;
 }
 
 
@@ -351,6 +602,31 @@ img {
   font-size: 0.9rem;
 }
 
+.indicador-origen {
+  border: 1px solid #333333;
+  border-radius: 999px;
+  display: inline-flex !important;
+  font-size: 0.68rem !important;
+  font-weight: 800;
+  line-height: 1;
+  margin-left: 8px;
+  padding: 4px 7px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.origen-local {
+  background: rgba(255, 217, 0, 0.14);
+  border-color: rgba(255, 217, 0, 0.55);
+  color: #ffd900 !important;
+}
+
+.origen-nube {
+  background: rgba(120, 170, 255, 0.12);
+  border-color: rgba(120, 170, 255, 0.42);
+  color: #9fc0ff !important;
+}
+
 
 /* ==================== LISTA DE CANCIONES ==================== */
 .fila-cancion,
@@ -359,6 +635,7 @@ img {
   display: grid;
   gap: 14px;
   grid-template-columns: 54px minmax(0, 1fr) 112px;
+  min-height: 76px;
   padding: 10px;
 }
 
@@ -368,6 +645,11 @@ img {
 
 .fila-cancion img {
   width: 54px;
+}
+
+.fila-cancion .boton-reproducir {
+  justify-self: end;
+  width: 112px;
 }
 
 .numero-cancion,
@@ -636,15 +918,64 @@ img {
     flex-direction: column;
   }
 
+  .barra-superior {
+    gap: 14px;
+    padding: 14px 18px;
+    position: static;
+  }
+
+  .menu-principal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .menu-principal a {
+    background: #151515;
+    border: 1px solid #1f1f1f;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 88px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .menu-usuario {
+    align-items: center;
+    border-top: 1px solid #1f1f1f;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 10px;
+    width: 100%;
+  }
+
   .contenedor {
     padding: 22px;
   }
 
   .dos-columnas,
   .grilla-admin,
+  .grilla-eliminar,
+  .menu-admin-pasos,
   .form-busqueda,
   .barra-reproductor {
     grid-template-columns: 1fr;
+  }
+
+  .paso-admin {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .paso-admin span {
+    grid-row: span 2;
+    margin-bottom: 0;
+  }
+
+  .panel-paso {
+    max-width: none;
+    min-height: auto;
   }
 
   .fila-cancion,
@@ -655,6 +986,11 @@ img {
   .boton-reproducir,
   .duracion {
     grid-column: 1 / -1;
+  }
+
+  .boton-reproducir,
+  .fila-cancion .boton-reproducir {
+    width: 100%;
   }
 
   .barra-reproductor {

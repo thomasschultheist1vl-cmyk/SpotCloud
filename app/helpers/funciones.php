@@ -63,3 +63,24 @@ function formatearDuracion(?string $duracion): string
 
     return sprintf('%02d:%02d:%02d', $primerNumero, $segundoNumero, $tercerNumero);
 }
+
+// Indica si una cancion viene de una URL externa o de una carpeta local del proyecto.
+function obtenerOrigenCancion(?string $ruta): array
+{
+    $ruta = trim((string) $ruta);
+    $esNube = (bool) preg_match('/^https?:\/\//i', $ruta);
+
+    if ($esNube) {
+        return [
+            'texto' => 'Nube',
+            'clase' => 'origen-nube',
+            'titulo' => 'Archivo alojado en la nube',
+        ];
+    }
+
+    return [
+        'texto' => 'Local',
+        'clase' => 'origen-local',
+        'titulo' => 'Archivo guardado en public/uploads/canciones',
+    ];
+}

@@ -38,6 +38,10 @@ if (playerBar && audio && tracks.length > 0) {
     playPauseBtn.innerHTML = audio.paused ? '&#9654;' : '&#10074;&#10074;';
     shuffleBtn.classList.toggle('activo', shuffle);
 
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
+    }
+
     tracks.forEach((track, index) => {
       const button = track.querySelector('.js-reproducir-cancion');
       const active = index === currentIndex && !audio.paused;
@@ -46,6 +50,22 @@ if (playerBar && audio && tracks.length > 0) {
       if (button) {
         button.textContent = active ? 'Pausar' : 'Reproducir';
       }
+    });
+  };
+
+  // Mejora los controles de audio en celulares, especialmente Android.
+  const updateMediaSession = (track) => {
+    if (!('mediaSession' in navigator) || !window.MediaMetadata) {
+      return;
+    }
+
+    const artwork = track.dataset.cover ? [{ src: track.dataset.cover, sizes: '512x512' }] : [];
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.dataset.title || 'SpotCloud',
+      artist: track.dataset.artist || 'SpotCloud',
+      album: 'SpotCloud',
+      artwork,
     });
   };
 
@@ -86,6 +106,7 @@ if (playerBar && audio && tracks.length > 0) {
     playerBar.classList.add('visible');
     progressBar.value = 0;
     currentTime.textContent = '0:00';
+    updateMediaSession(track);
 
     if (autoplay) {
       audio.play();
@@ -159,6 +180,31 @@ if (playerBar && audio && tracks.length > 0) {
   });
 
   nextBtn.addEventListener('click', playNext);
+
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => {
+      if (currentIndex === -1) {
+        loadTrack(0);
+        return;
+      }
+
+      audio.play();
+      saveHistory(tracks[currentIndex]);
+      updateButtons();
+    });
+
+    navigator.mediaSession.setActionHandler('pause', () => {
+      audio.pause();
+      updateButtons();
+    });
+
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      const nextIndex = currentIndex <= 0 ? tracks.length - 1 : currentIndex - 1;
+      loadTrack(nextIndex);
+    });
+
+    navigator.mediaSession.setActionHandler('nexttrack', playNext);
+  }
 
   // Activa o desactiva reproduccion aleatoria.
   shuffleBtn.addEventListener('click', () => {

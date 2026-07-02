@@ -9,8 +9,8 @@ $usuarioNav = usuarioActual();
 
     <nav class="menu-principal">
         <a href="index.php">Inicio</a>
-        <a href="buscar.php">Explorar</a>
-        <a href="admin.php">Admin</a>
+        <a href="buscar.php">Buscar</a>
+        <a href="admin.php">Cargar</a>
     </nav>
 
     <div class="menu-usuario">

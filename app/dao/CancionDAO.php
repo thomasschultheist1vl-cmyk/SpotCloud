@@ -74,7 +74,7 @@ class CancionDAO
         return $stmt->fetchAll();
     }
 
-    // Guarda una cancion nueva con su URL de Supabase.
+    // Guarda una cancion nueva con la ruta del archivo MP3.
     public function crear(string $titulo, ?string $duracion, int $idAlbum, string $rutaArchivoMp3): bool
     {
         $sql = "INSERT INTO canciones (titulo, duracion, id_album, ruta_archivo_mp3)
@@ -88,5 +88,22 @@ class CancionDAO
             'id_album' => $idAlbum,
             'ruta_archivo_mp3' => $rutaArchivoMp3,
         ]);
+    }
+
+    // Elimina varias canciones seleccionadas desde el panel de administracion.
+    public function eliminarVarios(array $idsCanciones): int
+    {
+        $idsCanciones = array_filter(array_map('intval', $idsCanciones));
+
+        if (!$idsCanciones) {
+            return 0;
+        }
+
+        $marcadores = implode(',', array_fill(0, count($idsCanciones), '?'));
+        $sql = "DELETE FROM canciones WHERE id_cancion IN ($marcadores)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array_values($idsCanciones));
+
+        return $stmt->rowCount();
     }
 }

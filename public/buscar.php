@@ -25,11 +25,11 @@ $resultados = $texto === '' ? [] : $cancionDAO->buscar($texto);
     <main class="contenedor angosto">
         <section class="titulo-pagina">
             <p class="etiqueta">Explorar</p>
-            <h1>Buscar musica</h1>
+            <h1>Buscar música</h1>
         </section>
 
         <form class="form-busqueda" method="GET">
-            <input type="search" name="q" value="<?= limpiar($texto) ?>" placeholder="Cancion, artista o album">
+            <input type="search" name="q" value="<?= limpiar($texto) ?>" placeholder="Canción, artista o álbum">
             <button class="boton boton-principal" type="submit">Buscar</button>
         </form>
 
@@ -39,6 +39,7 @@ $resultados = $texto === '' ? [] : $cancionDAO->buscar($texto);
             <?php endif; ?>
 
             <?php foreach ($resultados as $cancion): ?>
+                <?php $origen = obtenerOrigenCancion($cancion['ruta_archivo_mp3'] ?? ''); ?>
                 <!-- Resultado listo para ser enviado al reproductor JS. -->
                 <article
                     class="fila-cancion js-cancion"
@@ -51,7 +52,10 @@ $resultados = $texto === '' ? [] : $cancionDAO->buscar($texto);
                     <img src="<?= limpiar($cancion['ruta_portada'] ?? '') ?>" alt="">
                     <div>
                         <strong><?= limpiar($cancion['titulo']) ?></strong>
-                        <span><?= limpiar($cancion['artista'] ?? '') ?> - <?= limpiar($cancion['album'] ?? '') ?></span>
+                        <span>
+                            <?= limpiar($cancion['artista'] ?? '') ?> - <?= limpiar($cancion['album'] ?? '') ?>
+                            <span class="indicador-origen <?= limpiar($origen['clase']) ?>" title="<?= limpiar($origen['titulo']) ?>"><?= limpiar($origen['texto']) ?></span>
+                        </span>
                     </div>
                     <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
                 </article>

@@ -91,6 +91,7 @@ unset($_SESSION['mostrar_intro']);
 
                 <div class="lista-canciones">
                     <?php foreach (array_slice($canciones, 0, 12) as $cancion): ?>
+                        <?php $origen = obtenerOrigenCancion($cancion['ruta_archivo_mp3'] ?? ''); ?>
                         <!-- Los data-* guardan la info que el JS usa para el reproductor. -->
                         <article
                             class="fila-cancion js-cancion"
@@ -103,7 +104,10 @@ unset($_SESSION['mostrar_intro']);
                             <img src="<?= limpiar($cancion['ruta_portada'] ?? '') ?>" alt="">
                             <div>
                                 <strong><?= limpiar($cancion['titulo']) ?></strong>
-                                <span><?= limpiar($cancion['artista'] ?? '') ?></span>
+                                <span>
+                                    <?= limpiar($cancion['artista'] ?? '') ?>
+                                    <span class="indicador-origen <?= limpiar($origen['clase']) ?>" title="<?= limpiar($origen['titulo']) ?>"><?= limpiar($origen['texto']) ?></span>
+                                </span>
                             </div>
                             <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
                         </article>

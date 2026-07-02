@@ -53,4 +53,21 @@ class AlbumDAO
             'ruta_portada' => $rutaPortada,
         ]);
     }
+
+    // Elimina varios albumes. Sus canciones se borran por la relacion en cascada.
+    public function eliminarVarios(array $idsAlbumes): int
+    {
+        $idsAlbumes = array_filter(array_map('intval', $idsAlbumes));
+
+        if (!$idsAlbumes) {
+            return 0;
+        }
+
+        $marcadores = implode(',', array_fill(0, count($idsAlbumes), '?'));
+        $sql = "DELETE FROM albumes WHERE id_album IN ($marcadores)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array_values($idsAlbumes));
+
+        return $stmt->rowCount();
+    }
 }

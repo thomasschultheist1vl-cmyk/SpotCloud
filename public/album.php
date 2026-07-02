@@ -53,6 +53,7 @@ $canciones = $cancionDAO->obtenerPorAlbum($idAlbum);
 
         <section class="lista-canciones canciones-album">
             <?php foreach ($canciones as $numero => $cancion): ?>
+                <?php $origen = obtenerOrigenCancion($cancion['ruta_archivo_mp3'] ?? ''); ?>
                 <!-- Cada fila se puede reproducir desde la barra inferior. -->
                 <article
                     class="fila-cancion js-cancion"
@@ -65,7 +66,10 @@ $canciones = $cancionDAO->obtenerPorAlbum($idAlbum);
                     <span class="numero-cancion"><?= $numero + 1 ?></span>
                     <div>
                         <strong><?= limpiar($cancion['titulo']) ?></strong>
-                        <span><?= limpiar($cancion['artista'] ?? '') ?></span>
+                        <span>
+                            <?= limpiar($cancion['artista'] ?? '') ?>
+                            <span class="indicador-origen <?= limpiar($origen['clase']) ?>" title="<?= limpiar($origen['titulo']) ?>"><?= limpiar($origen['texto']) ?></span>
+                        </span>
                     </div>
                     <span class="duracion"><?= limpiar(formatearDuracion($cancion['duracion'])) ?></span>
                     <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
