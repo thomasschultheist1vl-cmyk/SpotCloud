@@ -260,6 +260,11 @@ if (playerBar && audio) {
     loadTrack(currentIndex < 0 ? 0 : (currentIndex + 1) % tracks.length);
   };
 
+  const obtenerCancionesCola = async () => {
+    const resultado = await enviarAccionCola('listar');
+    return Array.isArray(resultado.canciones) ? resultado.canciones : [];
+  };
+
   const pausarFinDeCola = () => {
     audio.pause();
     audio.removeAttribute('src');
@@ -274,8 +279,35 @@ if (playerBar && audio) {
     updateButtons();
   };
 
-  const quitarFilaTerminada = async () => {
-    if (!currentTrack || !currentTrack.enCola) {
+  const reproducirSiguienteConPrioridadCola = async () => {
+    if (!currentTrack) {
+      try {
+        const cancionesCola = await obtenerCancionesCola();
+
+        if (cancionesCola.length > 0) {
+          loadTrackData(datosDesdeCola(cancionesCola[0]));
+          return;
+        }
+      } catch (error) {
+        // Si no se puede leer la fila, seguimos con la lista visible.
+      }
+
+      playNext();
+      return;
+    }
+
+    if (!currentTrack.enCola) {
+      try {
+        const cancionesCola = await obtenerCancionesCola();
+
+        if (cancionesCola.length > 0) {
+          loadTrackData(datosDesdeCola(cancionesCola[0]));
+          return;
+        }
+      } catch (error) {
+        // Si falla la consulta, el reproductor conserva el comportamiento normal.
+      }
+
       playNext();
       return;
     }
@@ -733,7 +765,9 @@ if (playerBar && audio) {
     loadTrack(nextIndex);
   });
 
-  nextBtn.addEventListener('click', playNext);
+  nextBtn.addEventListener('click', () => {
+    reproducirSiguienteConPrioridadCola();
+  });
 
   if ('mediaSession' in navigator) {
     navigator.mediaSession.setActionHandler('play', reproducirActual);
@@ -753,7 +787,7 @@ if (playerBar && audio) {
       loadTrack(nextIndex);
     });
 
-    navigator.mediaSession.setActionHandler('nexttrack', playNext);
+    navigator.mediaSession.setActionHandler('nexttrack', reproducirSiguienteConPrioridadCola);
   }
 
   shuffleBtn.addEventListener('click', () => {
@@ -820,7 +854,7 @@ if (playerBar && audio) {
     }
   });
 
-  audio.addEventListener('ended', quitarFilaTerminada);
+  audio.addEventListener('ended', reproducirSiguienteConPrioridadCola);
   audio.addEventListener('play', () => {
     guardarEstado();
     updateButtons();
