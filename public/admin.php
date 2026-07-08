@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Alta de artista.
         if ($accion === 'artista') {
             $artistaDAO->crear(trim($_POST['nombre']), trim($_POST['biografia']), trim($_POST['genero']));
-            $mensaje = 'Artista cargado correctamente.';
+            $mensaje = 'Artista/grupo musical cargado correctamente.';
             $seccionActiva = 'album';
         }
 
@@ -144,8 +144,8 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
         <section class="menu-admin-pasos" aria-label="Opciones de administración">
             <button class="paso-admin <?= $seccionActiva === 'artista' ? 'activo' : '' ?>" type="button" data-seccion="artista">
                 <span>1</span>
-                <strong>Artista</strong>
-                <small>Crear artista</small>
+                <strong>Artista/grupo musical</strong>
+                <small>Crear artista/grupo musical</small>
             </button>
 
             <button class="paso-admin <?= $seccionActiva === 'album' ? 'activo' : '' ?>" type="button" data-seccion="album">
@@ -177,16 +177,16 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
             <!-- Paso 1: insertar artistas. -->
             <form class="panel formulario panel-paso seccion-admin <?= $seccionActiva === 'artista' ? 'activa' : '' ?>" data-panel="artista" method="POST">
                 <input type="hidden" name="accion" value="artista">
-                <h2>Nuevo artista</h2>
-                <p class="texto-suave">Primero cargá el artista. Después podés crear sus álbumes.</p>
-                <label>Nombre</label>
+                <h2>Nuevo artista/grupo musical</h2>
+                <p class="texto-suave">Primero cargá el artista o grupo musical. Después podés crear sus álbumes.</p>
+                <label>Nombre del artista/grupo musical</label>
                 <input type="text" name="nombre" required>
                 <label>Biografía corta</label>
                 <textarea name="biografia" rows="3" maxlength="180"></textarea>
                 <small class="ayuda-campo">Máximo 180 caracteres.</small>
-                <label>Género</label>
+                <label>Género musical</label>
                 <input type="text" name="genero">
-                <button class="boton boton-principal" type="submit">Guardar artista</button>
+                <button class="boton boton-principal" type="submit">Guardar artista/grupo musical</button>
             </form>
 
             <!-- Paso 2: insertar albumes. -->
@@ -198,7 +198,7 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
                 <input type="text" name="titulo" required>
                 <label>Año</label>
                 <input type="number" name="anio" min="1900" max="2100">
-                <label>Artista</label>
+                <label>Artista/grupo musical</label>
                 <select name="id_artista" required>
                     <?php foreach ($artistas as $artista): ?>
                         <option value="<?= (int) $artista['id_artista'] ?>"><?= limpiar($artista['nombre']) ?></option>
@@ -290,5 +290,4 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
     <script src="js/admin.js"></script>
 </body>
 </html>
-
 

@@ -17,6 +17,10 @@ if (playerBar && audio) {
   const currentTime = document.getElementById('currentTime');
   const durationTime = document.getElementById('durationTime');
   const volumeBar = document.getElementById('volumeBar');
+  const queueToggleBtn = document.getElementById('queueToggleBtn');
+  const queuePanel = document.getElementById('queuePanel');
+  const queuePanelList = document.getElementById('queuePanelList');
+  const closeQueueBtn = document.getElementById('closeQueueBtn');
 
   let tracks = [];
   let currentIndex = -1;
@@ -54,6 +58,43 @@ if (playerBar && audio) {
     src: cancion.ruta_archivo_mp3 || '',
     enCola: true,
   });
+
+  const limpiarTexto = (valor) => {
+    const elemento = document.createElement('span');
+    elemento.textContent = valor ?? '';
+    return elemento.innerHTML;
+  };
+
+  const selectorSeguro = (valor) => {
+    return window.CSS?.escape ? CSS.escape(valor) : String(valor).replace(/["\\]/g, '\\$&');
+  };
+
+  const itemColaHTML = (cancion, index) => {
+    const track = datosDesdeCola(cancion);
+    const album = cancion.album || '';
+
+    return `
+      <article
+        class="fila-cancion item-cola-panel js-cancion"
+        data-id="${limpiarTexto(track.id)}"
+        data-title="${limpiarTexto(track.title)}"
+        data-artist="${limpiarTexto(track.artist)}"
+        data-cover="${limpiarTexto(track.cover)}"
+        data-src="${limpiarTexto(track.src)}"
+        data-en-cola="1"
+      >
+        <span class="numero-cancion">${index + 1}</span>
+        <div>
+          <strong>${limpiarTexto(track.title)}</strong>
+          <span>${limpiarTexto(track.artist)}${album ? ` - ${limpiarTexto(album)}` : ''}</span>
+        </div>
+        <div class="acciones-cancion">
+          <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+          <button class="boton-reproducir boton-fila js-quitar-cola" type="button" data-id-cancion="${limpiarTexto(track.id)}">Quitar</button>
+        </div>
+      </article>
+    `;
+  };
   const buscarIndiceActual = () => {
     if (!currentTrack) {
       currentIndex = -1;
@@ -240,8 +281,6 @@ if (playerBar && audio) {
     }
 
     const idCancion = currentTrack.id;
-    const indiceTerminado = currentIndex;
-    const listaCola = document.querySelector('[data-lista-cola]');
 
     let resultado = null;
 
@@ -253,17 +292,7 @@ if (playerBar && audio) {
 
     const cancionesRestantes = Array.isArray(resultado?.canciones) ? resultado.canciones : [];
 
-    if (!listaCola) {
-      if (cancionesRestantes.length > 0) {
-        loadTrackData(datosDesdeCola(cancionesRestantes[0]));
-      } else {
-        pausarFinDeCola();
-      }
-
-      return;
-    }
-
-    Array.from(listaCola.querySelectorAll('.js-cancion')).forEach((fila) => {
+    document.querySelectorAll('[data-lista-cola] .js-cancion').forEach((fila) => {
       if (fila.dataset.id === idCancion) {
         fila.remove();
       }
@@ -273,12 +302,11 @@ if (playerBar && audio) {
     mostrarFilaVacia();
     inicializarCanciones();
 
-    if (!tracks.length) {
+    if (cancionesRestantes.length > 0) {
+      loadTrackData(datosDesdeCola(cancionesRestantes[0]));
+    } else {
       pausarFinDeCola();
-      return;
     }
-
-    loadTrack(Math.min(indiceTerminado, tracks.length - 1));
   };
 
   const inicializarCanciones = () => {
@@ -385,29 +413,103 @@ if (playerBar && audio) {
     return respuesta.json();
   };
 
-  const actualizarNumerosFila = () => {
-    document.querySelectorAll('[data-lista-cola] .fila-cancion').forEach((fila, index) => {
-      const numero = fila.querySelector('.numero-cancion');
+  const colaEstaAbierta = () => {
+    return queuePanel?.classList.contains('abierto');
+  };
 
-      if (numero) {
-        numero.textContent = index + 1;
+  const actualizarBotonesLimpiarCola = () => {
+    const tieneCanciones = Boolean(queuePanelList?.querySelector('.fila-cancion') || document.querySelector('main [data-lista-cola] .fila-cancion'));
+
+    document.querySelectorAll('.js-limpiar-cola').forEach((button) => {
+      button.hidden = !tieneCanciones;
+    });
+  };
+
+  const renderizarColaPanel = (canciones) => {
+    if (!queuePanelList) {
+      return;
+    }
+
+    if (!canciones.length) {
+      queuePanelList.innerHTML = '<p class="texto-suave fila-vacia">Todavia no agregaste canciones a tu fila.</p>';
+      actualizarBotonesLimpiarCola();
+      return;
+    }
+
+    queuePanelList.innerHTML = canciones.map(itemColaHTML).join('');
+    inicializarCanciones();
+    inicializarCola();
+    actualizarBotonesLimpiarCola();
+  };
+
+  const cargarColaPanel = async () => {
+    if (!queuePanelList) {
+      return;
+    }
+
+    queuePanelList.innerHTML = '<p class="texto-suave fila-vacia">Cargando tu fila...</p>';
+    actualizarBotonesLimpiarCola();
+
+    try {
+      const resultado = await enviarAccionCola('listar');
+      renderizarColaPanel(Array.isArray(resultado.canciones) ? resultado.canciones : []);
+    } catch (error) {
+      queuePanelList.innerHTML = '<p class="texto-suave fila-vacia">No se pudo cargar la fila.</p>';
+      actualizarBotonesLimpiarCola();
+    }
+  };
+
+  const abrirColaPanel = () => {
+    if (!queuePanel || !queueToggleBtn) {
+      return;
+    }
+
+    queuePanel.hidden = false;
+    queuePanel.style.display = 'grid';
+    queuePanel.setAttribute('aria-hidden', 'false');
+    queueToggleBtn.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => {
+      queuePanel.classList.add('abierto');
+    });
+    cargarColaPanel();
+  };
+
+  const cerrarColaPanel = () => {
+    if (!queuePanel || !queueToggleBtn) {
+      return;
+    }
+
+    queuePanel.classList.remove('abierto');
+    queuePanel.setAttribute('aria-hidden', 'true');
+    queueToggleBtn.setAttribute('aria-expanded', 'false');
+    setTimeout(() => {
+      if (!queuePanel.classList.contains('abierto')) {
+        queuePanel.hidden = true;
+        queuePanel.style.display = 'none';
       }
+    }, 200);
+  };
+
+  const actualizarNumerosFila = () => {
+    document.querySelectorAll('[data-lista-cola]').forEach((lista) => {
+      lista.querySelectorAll('.fila-cancion').forEach((fila, index) => {
+        const numero = fila.querySelector('.numero-cancion');
+
+        if (numero) {
+          numero.textContent = index + 1;
+        }
+      });
     });
   };
 
   const mostrarFilaVacia = () => {
-    const lista = document.querySelector('[data-lista-cola]');
+    document.querySelectorAll('[data-lista-cola]').forEach((lista) => {
+      if (!lista.querySelector('.fila-cancion')) {
+        lista.innerHTML = '<p class="texto-suave fila-vacia">Todavia no agregaste canciones a tu fila.</p>';
+      }
+    });
 
-    if (!lista || lista.querySelector('.fila-cancion')) {
-      return;
-    }
-
-    lista.innerHTML = '<p class="texto-suave fila-vacia">Todavia no agregaste canciones a tu fila.</p>';
-
-    const botonLimpiar = document.querySelector('.js-limpiar-cola');
-    if (botonLimpiar) {
-      botonLimpiar.remove();
-    }
+    actualizarBotonesLimpiarCola();
   };
 
   const inicializarCola = () => {
@@ -424,6 +526,10 @@ if (playerBar && audio) {
         try {
           const resultado = await enviarAccionCola('agregar', idCancion);
           mostrarRespuestaCola(button, resultado.mensaje || 'Listo');
+
+          if (colaEstaAbierta()) {
+            cargarColaPanel();
+          }
         } catch (error) {
           mostrarRespuestaCola(button, 'Error');
         }
@@ -443,9 +549,12 @@ if (playerBar && audio) {
           const resultado = await enviarAccionCola('quitar', idCancion);
 
           if (resultado.ok) {
-            button.closest('.fila-cancion')?.remove();
+            document.querySelectorAll(`[data-lista-cola] .fila-cancion[data-id="${selectorSeguro(idCancion)}"]`).forEach((fila) => {
+              fila.remove();
+            });
             actualizarNumerosFila();
             mostrarFilaVacia();
+            inicializarCanciones();
           }
         } catch (error) {
           mostrarRespuestaCola(button, 'Error');
@@ -470,6 +579,7 @@ if (playerBar && audio) {
           if (resultado.ok) {
             document.querySelectorAll('[data-lista-cola] .fila-cancion').forEach((fila) => fila.remove());
             mostrarFilaVacia();
+            inicializarCanciones();
           }
         } catch (error) {
           mostrarRespuestaCola(button, 'Error');
@@ -650,6 +760,26 @@ if (playerBar && audio) {
     shuffle = !shuffle;
     guardarEstado();
     updateButtons();
+  });
+
+  if (queueToggleBtn && queuePanel) {
+    queueToggleBtn.addEventListener('click', () => {
+      if (colaEstaAbierta()) {
+        cerrarColaPanel();
+      } else {
+        abrirColaPanel();
+      }
+    });
+  }
+
+  if (closeQueueBtn) {
+    closeQueueBtn.addEventListener('click', cerrarColaPanel);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && colaEstaAbierta()) {
+      cerrarColaPanel();
+    }
   });
 
   closePlayerBtn.addEventListener('click', () => {

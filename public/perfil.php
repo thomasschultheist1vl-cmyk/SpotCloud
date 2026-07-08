@@ -88,7 +88,7 @@ $inicial = strtoupper(substr($nombreActual, 0, 1));
 <body>
     <?php include __DIR__ . '/partials/nav.php'; ?>
 
-    <main class="contenedor angosto">
+    <main class="contenedor angosto perfil-pagina">
         <section class="titulo-pagina">
             <p class="etiqueta">Cuenta</p>
             <h1>Mi perfil</h1>
@@ -124,8 +124,6 @@ $inicial = strtoupper(substr($nombreActual, 0, 1));
                 <span>Seleccionar foto</span>
             </label>
             <small class="texto-archivo" id="texto-foto-perfil">Sin archivos seleccionados.</small>
-            <small class="ayuda-campo">Si no subis una foto, se muestra la inicial de tu nombre en mayuscula.</small>
-
             <button class="boton boton-principal" type="submit">Guardar perfil</button>
         </form>
     </main>

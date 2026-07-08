@@ -13,6 +13,14 @@ $idCancion = (int) ($_POST['id_cancion'] ?? 0);
 $idUsuario = (int) $usuario['id_usuario'];
 
 try {
+    if ($accion === 'listar') {
+        echo json_encode([
+            'ok' => true,
+            'canciones' => $colaDAO->obtenerCancionesPorUsuario($idUsuario),
+        ]);
+        exit;
+    }
+
     if ($accion === 'agregar') {
         $resultado = $colaDAO->agregarCancion($idUsuario, $idCancion);
         echo json_encode($resultado);

@@ -24,8 +24,24 @@
         </div>
     </div>
 
+    <aside class="panel-cola-reproductor" id="queuePanel" aria-hidden="true" style="display: none;" hidden>
+        <div class="encabezado-cola-reproductor">
+            <div>
+                <p class="etiqueta">Tu musica</p>
+                <h2>Fila de reproduccion</h2>
+            </div>
+            <button class="boton-cerrar-cola" id="closeQueueBtn" type="button" aria-label="Cerrar fila">&#215;</button>
+        </div>
+
+        <div class="lista-cola-reproductor" id="queuePanelList" data-lista-cola>
+            <p class="texto-suave fila-vacia">Cargando tu fila...</p>
+        </div>
+
+        <button class="boton boton-secundario js-limpiar-cola boton-limpiar-cola-panel" id="clearQueueBtn" type="button" hidden>Vaciar fila</button>
+    </aside>
+
     <div class="acciones-reproductor">
-        <a class="boton-cola-reproductor" href="fila.php">Fila</a>
+        <button class="boton-cola-reproductor" id="queueToggleBtn" type="button" aria-expanded="false" aria-controls="queuePanel">Fila</button>
         <div class="volumen-reproductor">
             <span aria-hidden="true">&#9834;</span>
             <input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen">
