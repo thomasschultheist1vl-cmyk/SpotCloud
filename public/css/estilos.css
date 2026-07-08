@@ -244,6 +244,16 @@ select,
   border-color: #ffd900;
 }
 
+.boton-fila {
+  background: #181818;
+  color: #ffd900;
+  font-size: 0.78rem;
+}
+
+.boton-fila:hover {
+  background: #2a2a2a;
+}
+
 
 /* ==================== FORMULARIOS Y ALERTAS ==================== */
 .formulario,
@@ -634,22 +644,29 @@ select,
   align-items: center;
   display: grid;
   gap: 14px;
-  grid-template-columns: 54px minmax(0, 1fr) 112px;
+  grid-template-columns: 54px minmax(0, 1fr) 132px;
   min-height: 76px;
   padding: 10px;
 }
 
 .canciones-album .fila-cancion {
-  grid-template-columns: 36px minmax(0, 1fr) 70px 112px;
+  grid-template-columns: 36px minmax(0, 1fr) 70px 132px;
 }
 
 .fila-cancion img {
   width: 54px;
 }
 
-.fila-cancion .boton-reproducir {
+.acciones-cancion {
+  display: grid;
+  gap: 8px;
   justify-self: end;
-  width: 112px;
+  width: 132px;
+}
+
+.acciones-cancion .boton-reproducir {
+  min-width: 0;
+  width: 100%;
 }
 
 .numero-cancion,
@@ -773,7 +790,7 @@ select,
   box-shadow: 0 -18px 42px rgba(0, 0, 0, 0.48);
   display: grid;
   gap: 20px;
-  grid-template-columns: minmax(220px, 1fr) minmax(320px, 560px) minmax(160px, 1fr);
+  grid-template-columns: minmax(220px, 1fr) minmax(320px, 560px) minmax(210px, 1fr);
   left: 0;
   min-height: 76px;
   opacity: 0;
@@ -796,6 +813,7 @@ select,
 .controles-reproductor,
 .boton-reproductor,
 .boton-play-reproductor,
+.acciones-reproductor,
 .volumen-reproductor {
   align-items: center;
   display: flex;
@@ -821,7 +839,31 @@ select,
   font-size: 0.82rem;
   margin-top: 3px;
 }
+.acciones-reproductor {
+  gap: 14px;
+  justify-content: flex-end;
+  min-width: 0;
+}
 
+.boton-cola-reproductor {
+  align-items: center;
+  background: #151515;
+  border: 1px solid #333333;
+  border-radius: 999px;
+  color: #ffd900;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 13px;
+  white-space: nowrap;
+}
+
+.boton-cola-reproductor:hover {
+  background: #242424;
+  border-color: #ffd900;
+}
 .centro-reproductor {
   display: grid;
   gap: 8px;
@@ -907,7 +949,44 @@ select,
 
 
 /* ==================== RESPONSIVE ==================== */
+@media (max-width: 1100px) {
+  .contenedor {
+    max-width: 100%;
+    padding: 28px;
+  }
+
+  .grilla-admin {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grilla-eliminar {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-admin-pasos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .barra-reproductor {
+    gap: 14px;
+    grid-template-columns: minmax(170px, 0.85fr) minmax(300px, 1.25fr) minmax(210px, 0.7fr);
+    padding: 12px 18px;
+  }
+
+  .controles-reproductor {
+    gap: 14px;
+  }
+
+  .volumen-reproductor {
+    grid-template-columns: 18px minmax(74px, 110px);
+  }
+}
+
 @media (max-width: 900px) {
+  body {
+    padding-bottom: 148px;
+  }
+
   .barra-superior,
   .menu-principal,
   .menu-usuario,
@@ -919,9 +998,12 @@ select,
   }
 
   .barra-superior {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
     gap: 14px;
     padding: 14px 18px;
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 70;
   }
 
   .menu-principal {
@@ -955,13 +1037,21 @@ select,
     padding: 22px;
   }
 
+  .destacado,
+  .portada-album {
+    min-height: auto;
+  }
+
   .dos-columnas,
   .grilla-admin,
   .grilla-eliminar,
-  .menu-admin-pasos,
   .form-busqueda,
   .barra-reproductor {
     grid-template-columns: 1fr;
+  }
+
+  .menu-admin-pasos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .paso-admin {
@@ -983,9 +1073,15 @@ select,
     grid-template-columns: 48px minmax(0, 1fr);
   }
 
-  .boton-reproducir,
+  .acciones-cancion,
   .duracion {
     grid-column: 1 / -1;
+  }
+
+  .acciones-cancion {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-self: stretch;
+    width: 100%;
   }
 
   .boton-reproducir,
@@ -994,10 +1090,175 @@ select,
   }
 
   .barra-reproductor {
+    gap: 12px;
+    grid-template-areas:
+      "cancion acciones"
+      "centro centro";
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 126px;
     padding: 12px 16px;
   }
 
+  .cancion-reproductor {
+    grid-area: cancion;
+  }
+
+  .acciones-reproductor {
+    align-self: start;
+    grid-area: acciones;
+    justify-content: flex-end;
+  }
+  .centro-reproductor {
+    grid-area: centro;
+    min-width: 0;
+  }
+
   .volumen-reproductor {
-    justify-content: stretch;
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding-bottom: 172px;
+  }
+
+  .barra-superior {
+    padding: 12px 14px;
+  }
+
+  .contenedor {
+    padding: 16px;
+  }
+
+  .destacado,
+  .portada-album,
+  .panel-lateral,
+  .panel {
+    padding: 14px;
+  }
+
+  .destacado img,
+  .portada-album img {
+    width: min(58vw, 168px);
+  }
+
+  .destacado h1,
+  .portada-album h1,
+  .titulo-pagina h1 {
+    font-size: clamp(1.9rem, 11vw, 3rem);
+  }
+
+  .grilla-albumes {
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tarjeta-album {
+    padding: 10px;
+  }
+
+  .menu-admin-pasos,
+  .form-busqueda {
+    grid-template-columns: 1fr;
+  }
+
+  .form-busqueda .boton {
+    width: 100%;
+  }
+
+  .indicador-origen {
+    margin-left: 0;
+    margin-top: 5px;
+  }
+
+  .barra-reproductor {
+    align-items: stretch;
+    gap: 10px 12px;
+    grid-template-areas:
+      "cancion acciones"
+      "centro centro";
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 150px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .cancion-reproductor {
+    grid-area: cancion;
+  }
+
+  .cancion-reproductor img {
+    width: 42px;
+  }
+
+  .cancion-reproductor strong {
+    font-size: 0.88rem;
+  }
+
+  .cancion-reproductor span {
+    font-size: 0.76rem;
+  }
+
+  .centro-reproductor {
+    align-self: end;
+    gap: 7px;
+    grid-area: centro;
+  }
+
+  .controles-reproductor {
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  .boton-reproductor,
+  .boton-play-reproductor {
+    flex: 0 0 30px;
+    height: 30px;
+    width: 30px;
+  }
+
+  .boton-play-reproductor {
+    height: 34px;
+    width: 34px;
+  }
+
+  .progreso-reproductor {
+    gap: 8px;
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+  }
+
+  .progreso-reproductor span {
+    font-size: 0.7rem;
+  }
+
+  .volumen-reproductor {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .menu-principal a {
+    min-width: calc(50% - 5px);
+  }
+
+  .fila-cancion,
+  .canciones-album .fila-cancion {
+    gap: 10px;
+    padding: 9px;
+  }
+
+  .controles-reproductor {
+    gap: 4px;
+  }
+
+  .boton-reproductor,
+  .boton-play-reproductor {
+    flex-basis: 28px;
+    width: 28px;
+  }
+
+  .boton-play-reproductor {
+    height: 32px;
+    width: 32px;
   }
 }

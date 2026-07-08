@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Panel simple para cargar contenido en la base de datos.
 require_once __DIR__ . '/../app/helpers/funciones.php';
 require_once __DIR__ . '/../app/dao/AlbumDAO.php';
@@ -287,6 +287,8 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
         </section>
     </main>
 
+    <?php include __DIR__ . '/partials/player.php'; ?>
+    <script src="js/app.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

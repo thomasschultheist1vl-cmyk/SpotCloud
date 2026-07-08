@@ -1,46 +1,44 @@
 <?php
-// Buscador simple por cancion, artista o album.
+// Muestra la fila de reproduccion personal del usuario conectado.
 require_once __DIR__ . '/../app/helpers/funciones.php';
-require_once __DIR__ . '/../app/dao/CancionDAO.php';
+require_once __DIR__ . '/../app/dao/ColaReproduccionDAO.php';
 
 protegerPagina();
 
-$texto = trim($_GET['q'] ?? '');
-$cancionDAO = new CancionDAO();
-
-// Si no se escribio nada, no se consulta la base todavia.
-$resultados = $texto === '' ? [] : $cancionDAO->buscar($texto);
+$usuario = usuarioActual();
+$colaDAO = new ColaReproduccionDAO();
+$cancionesFila = $colaDAO->obtenerCancionesPorUsuario((int) $usuario['id_usuario']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar - SpotCloud</title>
+    <title>Fila de reproduccion - SpotCloud</title>
     <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
     <?php include __DIR__ . '/partials/nav.php'; ?>
 
     <main class="contenedor angosto">
-        <section class="titulo-pagina">
-            <p class="etiqueta">Explorar</p>
-            <h1>Buscar música</h1>
+        <section class="encabezado-seccion">
+            <div>
+                <p class="etiqueta">Tu musica</p>
+                <h1>Fila de reproduccion</h1>
+            </div>
+            <?php if ($cancionesFila): ?>
+                <button class="boton boton-secundario js-limpiar-cola" type="button">Vaciar fila</button>
+            <?php endif; ?>
         </section>
 
-        <form class="form-busqueda" method="GET">
-            <input type="search" name="q" value="<?= limpiar($texto) ?>" placeholder="Canción, artista o álbum">
-            <button class="boton boton-principal" type="submit">Buscar</button>
-        </form>
-
-        <section class="lista-canciones">
-            <?php if ($texto !== '' && !$resultados): ?>
-                <p class="texto-suave">No se encontraron resultados.</p>
+        <section class="lista-canciones lista-fila" data-lista-cola>
+            <?php if (!$cancionesFila): ?>
+                <p class="texto-suave fila-vacia">Todavia no agregaste canciones a tu fila.</p>
             <?php endif; ?>
 
-            <?php foreach ($resultados as $cancion): ?>
+            <?php foreach ($cancionesFila as $cancion): ?>
                 <?php $origen = obtenerOrigenCancion($cancion['ruta_archivo_mp3'] ?? ''); ?>
-                <!-- Resultado listo para ser enviado al reproductor JS. -->
+                <!-- Esta fila tambien puede reproducirse con la barra global. -->
                 <article
                     class="fila-cancion js-cancion"
                     data-id="<?= (int) $cancion['id_cancion'] ?>"
@@ -48,8 +46,9 @@ $resultados = $texto === '' ? [] : $cancionDAO->buscar($texto);
                     data-artist="<?= limpiar($cancion['artista'] ?? '') ?>"
                     data-cover="<?= limpiar($cancion['ruta_portada'] ?? '') ?>"
                     data-src="<?= limpiar($cancion['ruta_archivo_mp3']) ?>"
+                    data-en-cola="1"
                 >
-                    <img src="<?= limpiar($cancion['ruta_portada'] ?? '') ?>" alt="">
+                    <span class="numero-cancion"><?= (int) $cancion['orden'] ?></span>
                     <div>
                         <strong><?= limpiar($cancion['titulo']) ?></strong>
                         <span>
@@ -59,7 +58,7 @@ $resultados = $texto === '' ? [] : $cancionDAO->buscar($texto);
                     </div>
                     <div class="acciones-cancion">
                         <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
-                        <button class="boton-reproducir boton-fila js-agregar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Agregar a fila</button>
+                        <button class="boton-reproducir boton-fila js-quitar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Quitar</button>
                     </div>
                 </article>
             <?php endforeach; ?>
@@ -70,5 +69,3 @@ $resultados = $texto === '' ? [] : $cancionDAO->buscar($texto);
     <script src="js/app.js"></script>
 </body>
 </html>
-
-

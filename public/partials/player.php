@@ -1,9 +1,9 @@
-﻿<!-- Reproductor global. El JS carga aca la cancion seleccionada. -->
+<!-- Reproductor global. El JS carga aca la cancion seleccionada. -->
 <footer class="barra-reproductor" id="playerBar" aria-label="Reproductor de musica">
     <div class="cancion-reproductor">
         <img id="playerCover" src="" alt="">
         <div>
-            <strong id="playerTitle">Selecciona una canción</strong>
+            <strong id="playerTitle">Selecciona una canciÃ³n</strong>
             <span id="playerArtist">SpotCloud</span>
         </div>
     </div>
@@ -24,12 +24,15 @@
         </div>
     </div>
 
-    <div class="volumen-reproductor">
-        <span aria-hidden="true">&#9834;</span>
-        <input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen">
+    <div class="acciones-reproductor">
+        <a class="boton-cola-reproductor" href="fila.php">Fila</a>
+        <div class="volumen-reproductor">
+            <span aria-hidden="true">&#9834;</span>
+            <input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen">
+        </div>
     </div>
 
-    <audio id="mainAudio"></audio>
+    <audio id="mainAudio" preload="metadata" playsinline></audio>
 </footer>
 
 

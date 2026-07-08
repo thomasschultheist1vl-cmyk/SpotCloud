@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Pantalla principal: muestra el contenido musical despues del login.
 require_once __DIR__ . '/../app/helpers/funciones.php';
 require_once __DIR__ . '/../app/dao/AlbumDAO.php';
@@ -109,7 +109,10 @@ unset($_SESSION['mostrar_intro']);
                                     <span class="indicador-origen <?= limpiar($origen['clase']) ?>" title="<?= limpiar($origen['titulo']) ?>"><?= limpiar($origen['texto']) ?></span>
                                 </span>
                             </div>
-                            <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+                            <div class="acciones-cancion">
+                                <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+                                <button class="boton-reproducir boton-fila js-agregar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Agregar a fila</button>
+                            </div>
                         </article>
                     <?php endforeach; ?>
                 </div>

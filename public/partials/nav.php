@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $usuarioNav = usuarioActual();
 ?>
 <header class="barra-superior">

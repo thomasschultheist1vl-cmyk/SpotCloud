@@ -1,5 +1,10 @@
 // Muestra el nombre del archivo elegido debajo del boton.
 document.querySelectorAll('.input-archivo').forEach((input) => {
+  if (input.dataset.archivoListo === '1') {
+    return;
+  }
+
+  input.dataset.archivoListo = '1';
   input.addEventListener('change', () => {
     const textoArchivo = document.getElementById(input.dataset.textoArchivo);
 
@@ -15,6 +20,11 @@ document.querySelectorAll('.input-archivo').forEach((input) => {
 
 // Muestra solo la funcion elegida del panel de administracion.
 document.querySelectorAll('.paso-admin').forEach((boton) => {
+  if (boton.dataset.pasoListo === '1') {
+    return;
+  }
+
+  boton.dataset.pasoListo = '1';
   boton.addEventListener('click', () => {
     const seccion = boton.dataset.seccion;
 

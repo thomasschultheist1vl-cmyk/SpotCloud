@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Detalle de album: muestra datos del album y sus canciones.
 require_once __DIR__ . '/../app/helpers/funciones.php';
 require_once __DIR__ . '/../app/dao/AlbumDAO.php';
@@ -72,7 +72,10 @@ $canciones = $cancionDAO->obtenerPorAlbum($idAlbum);
                         </span>
                     </div>
                     <span class="duracion"><?= limpiar(formatearDuracion($cancion['duracion'])) ?></span>
-                    <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+                    <div class="acciones-cancion">
+                        <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+                        <button class="boton-reproducir boton-fila js-agregar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Agregar a fila</button>
+                    </div>
                 </article>
             <?php endforeach; ?>
         </section>
