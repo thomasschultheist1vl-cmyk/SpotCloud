@@ -180,16 +180,17 @@ CREATE TABLE `usuarios` (
   `id_usuario` int(11) NOT NULL,
   `nombre` varchar(100) NOT NULL,
   `correo` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `foto_perfil` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `password`) VALUES
-(1, 'Mateo', 'mateo@spotcloud.com', '123456'),
-(2, 'Morena', 'morena@spotcloud.com', '654321');
+INSERT INTO `usuarios` (`id_usuario`, `nombre`, `correo`, `password`, `foto_perfil`) VALUES
+(1, 'Mateo', 'mateo@spotcloud.com', '123456', NULL),
+(2, 'Morena', 'morena@spotcloud.com', '654321', NULL);
 
 -- --------------------------------------------------------
 

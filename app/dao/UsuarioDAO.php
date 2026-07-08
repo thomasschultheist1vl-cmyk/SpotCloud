@@ -23,6 +23,17 @@ class UsuarioDAO
         return $usuario ?: null;
     }
 
+    // Busca un usuario por id para refrescar la sesion despues de editar el perfil.
+    public function obtenerPorId(int $idUsuario): ?array
+    {
+        $sql = "SELECT id_usuario, nombre, correo, foto_perfil FROM usuarios WHERE id_usuario = :id_usuario";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_usuario' => $idUsuario]);
+        $usuario = $stmt->fetch();
+
+        return $usuario ?: null;
+    }
+
     // Crea un usuario nuevo. La clave se guarda hasheada.
     public function registrar(string $nombre, string $correo, string $password): bool
     {
@@ -58,6 +69,23 @@ class UsuarioDAO
             'id_usuario' => (int) $usuario['id_usuario'],
             'nombre' => $usuario['nombre'],
             'correo' => $usuario['correo'],
+            'foto_perfil' => $usuario['foto_perfil'] ?? null,
         ];
+    }
+
+    // Actualiza datos visibles del perfil del usuario.
+    public function actualizarPerfil(int $idUsuario, string $nombre, ?string $fotoPerfil): bool
+    {
+        $sql = "UPDATE usuarios
+                SET nombre = :nombre, foto_perfil = :foto_perfil
+                WHERE id_usuario = :id_usuario";
+
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            'nombre' => $nombre,
+            'foto_perfil' => $fotoPerfil,
+            'id_usuario' => $idUsuario,
+        ]);
     }
 }
