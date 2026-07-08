@@ -28,6 +28,8 @@ if (playerBar && audio) {
   let shuffle = false;
   let pendingTime = 0;
   let restoring = false;
+  let contextoTracks = [];
+  let contextoIndex = -1;
   const vistaSinControlVolumen = window.matchMedia('(max-width: 900px)');
   const savedTracks = new Set();
 
@@ -75,7 +77,7 @@ if (playerBar && audio) {
 
     return `
       <article
-        class="fila-cancion item-cola-panel js-cancion"
+        class="fila-cancion item-cola-panel item-cola-prioridad js-cancion"
         data-id="${limpiarTexto(track.id)}"
         data-title="${limpiarTexto(track.title)}"
         data-artist="${limpiarTexto(track.artist)}"
@@ -95,6 +97,29 @@ if (playerBar && audio) {
       </article>
     `;
   };
+
+  const itemContextoHTML = (track, index, orden) => {
+    return `
+      <article
+        class="fila-cancion item-cola-panel item-cola-contexto js-cancion"
+        data-id="${limpiarTexto(track.id)}"
+        data-title="${limpiarTexto(track.title)}"
+        data-artist="${limpiarTexto(track.artist)}"
+        data-cover="${limpiarTexto(track.cover)}"
+        data-src="${limpiarTexto(track.src)}"
+        data-context-index="${index}"
+      >
+        <span class="numero-cancion">${orden}</span>
+        <div>
+          <strong>${limpiarTexto(track.title)}</strong>
+          <span>${limpiarTexto(track.artist)}</span>
+        </div>
+        <div class="acciones-cancion">
+          <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+        </div>
+      </article>
+    `;
+  };
   const buscarIndiceActual = () => {
     if (!currentTrack) {
       currentIndex = -1;
@@ -104,6 +129,38 @@ if (playerBar && audio) {
     currentIndex = tracks.findIndex((track) => {
       return track.dataset.id === currentTrack.id || track.dataset.src === currentTrack.src;
     });
+  };
+
+  const guardarContextoDesdePagina = (indexActual) => {
+    contextoTracks = tracks.map((track) => ({
+      ...datosDeCancion(track),
+      enCola: false,
+    }));
+    contextoIndex = indexActual;
+  };
+
+  const obtenerSiguientesContexto = () => {
+    if (!contextoTracks.length || contextoIndex < 0) {
+      return [];
+    }
+
+    return contextoTracks.slice(contextoIndex + 1);
+  };
+
+  const loadContextTrack = (index, autoplay = true) => {
+    const track = contextoTracks[index];
+
+    if (!track) {
+      return false;
+    }
+
+    contextoIndex = index;
+    loadTrackData({
+      ...track,
+      enCola: false,
+    }, autoplay);
+
+    return true;
   };
 
   const guardarEstado = () => {
@@ -145,9 +202,10 @@ if (playerBar && audio) {
       navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
     }
 
-    tracks.forEach((track, index) => {
+    document.querySelectorAll('.js-cancion').forEach((track) => {
       const button = track.querySelector('.js-reproducir-cancion');
-      const esActual = currentIndex === index;
+      const datos = datosDeCancion(track);
+      const esActual = currentTrack && (datos.id === currentTrack.id || datos.src === currentTrack.src);
       const active = esActual && !audio.paused;
 
       track.classList.toggle('reproduciendo', active);
@@ -226,6 +284,7 @@ if (playerBar && audio) {
     }
 
     const track = datosDeCancion(fila);
+    guardarContextoDesdePagina(index);
     currentIndex = index;
     pendingTime = 0;
     audio.src = track.src;
@@ -265,6 +324,21 @@ if (playerBar && audio) {
     return Array.isArray(resultado.canciones) ? resultado.canciones : [];
   };
 
+  const reproducirSiguienteContexto = () => {
+    if (contextoTracks.length && contextoIndex >= 0) {
+      const siguienteIndex = contextoIndex + 1;
+
+      if (loadContextTrack(siguienteIndex)) {
+        return;
+      }
+
+      pausarFinDeCola();
+      return;
+    }
+
+    playNext();
+  };
+
   const pausarFinDeCola = () => {
     audio.pause();
     audio.removeAttribute('src');
@@ -286,13 +360,16 @@ if (playerBar && audio) {
 
         if (cancionesCola.length > 0) {
           loadTrackData(datosDesdeCola(cancionesCola[0]));
+          if (colaEstaAbierta()) {
+            cargarColaPanel();
+          }
           return;
         }
       } catch (error) {
         // Si no se puede leer la fila, seguimos con la lista visible.
       }
 
-      playNext();
+      reproducirSiguienteContexto();
       return;
     }
 
@@ -302,13 +379,16 @@ if (playerBar && audio) {
 
         if (cancionesCola.length > 0) {
           loadTrackData(datosDesdeCola(cancionesCola[0]));
+          if (colaEstaAbierta()) {
+            cargarColaPanel();
+          }
           return;
         }
       } catch (error) {
         // Si falla la consulta, el reproductor conserva el comportamiento normal.
       }
 
-      playNext();
+      reproducirSiguienteContexto();
       return;
     }
 
@@ -337,15 +417,19 @@ if (playerBar && audio) {
     if (cancionesRestantes.length > 0) {
       loadTrackData(datosDesdeCola(cancionesRestantes[0]));
     } else {
-      pausarFinDeCola();
+      reproducirSiguienteContexto();
+    }
+
+    if (colaEstaAbierta()) {
+      cargarColaPanel();
     }
   };
 
   const inicializarCanciones = () => {
-    tracks = Array.from(document.querySelectorAll('.js-cancion'));
+    tracks = Array.from(document.querySelectorAll('main .js-cancion'));
     buscarIndiceActual();
 
-    tracks.forEach((track, index) => {
+    document.querySelectorAll('.js-cancion').forEach((track) => {
       const button = track.querySelector('.js-reproducir-cancion');
 
       if (!button || button.dataset.playerListo === '1') {
@@ -354,7 +438,10 @@ if (playerBar && audio) {
 
       button.dataset.playerListo = '1';
       button.addEventListener('click', () => {
-        if (currentIndex === index && currentTrack) {
+        const datos = datosDeCancion(track);
+        const esActual = currentTrack && (datos.id === currentTrack.id || datos.src === currentTrack.src);
+
+        if (esActual) {
           if (audio.paused) {
             reproducirActual();
           } else {
@@ -362,7 +449,25 @@ if (playerBar && audio) {
             guardarEstado();
           }
         } else {
-          loadTrack(index);
+          const indexPagina = tracks.indexOf(track);
+          const indexContexto = Number(track.dataset.contextIndex);
+
+          if (indexPagina >= 0) {
+            guardarContextoDesdePagina(indexPagina);
+            loadContextTrack(indexPagina);
+          } else if (Number.isInteger(indexContexto) && indexContexto >= 0) {
+            contextoIndex = indexContexto;
+            loadTrackData({
+              ...datos,
+              enCola: false,
+            });
+          } else {
+            loadTrackData(datos);
+          }
+        }
+
+        if (colaEstaAbierta()) {
+          cargarColaPanel();
         }
 
         updateButtons();
@@ -450,7 +555,7 @@ if (playerBar && audio) {
   };
 
   const actualizarBotonesLimpiarCola = () => {
-    const tieneCanciones = Boolean(queuePanelList?.querySelector('.fila-cancion') || document.querySelector('main [data-lista-cola] .fila-cancion'));
+    const tieneCanciones = Boolean(queuePanelList?.querySelector('.item-cola-prioridad') || document.querySelector('main [data-lista-cola] .fila-cancion'));
 
     document.querySelectorAll('.js-limpiar-cola').forEach((button) => {
       button.hidden = !tieneCanciones;
@@ -462,13 +567,34 @@ if (playerBar && audio) {
       return;
     }
 
-    if (!canciones.length) {
-      queuePanelList.innerHTML = '<p class="texto-suave fila-vacia">Todavia no agregaste canciones a tu fila.</p>';
+    const siguientesContexto = obtenerSiguientesContexto();
+    const bloques = [];
+
+    if (canciones.length) {
+      bloques.push(`
+        <section class="grupo-cola-panel">
+          <h3>Prioridad de la fila</h3>
+          ${canciones.map(itemColaHTML).join('')}
+        </section>
+      `);
+    }
+
+    if (siguientesContexto.length) {
+      bloques.push(`
+        <section class="grupo-cola-panel">
+          <h3>${canciones.length ? 'Después sigue' : 'Sigue del álbum o lista'}</h3>
+          ${siguientesContexto.map((track, index) => itemContextoHTML(track, contextoIndex + index + 1, index + 1)).join('')}
+        </section>
+      `);
+    }
+
+    if (!bloques.length) {
+      queuePanelList.innerHTML = '<p class="texto-suave fila-vacia">No hay canciones siguientes.</p>';
       actualizarBotonesLimpiarCola();
       return;
     }
 
-    queuePanelList.innerHTML = canciones.map(itemColaHTML).join('');
+    queuePanelList.innerHTML = bloques.join('');
     inicializarCanciones();
     inicializarCola();
     actualizarBotonesLimpiarCola();

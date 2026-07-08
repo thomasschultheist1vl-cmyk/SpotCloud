@@ -988,6 +988,24 @@ select,
   padding-right: 4px;
 }
 
+.grupo-cola-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.grupo-cola-panel + .grupo-cola-panel {
+  border-top: 1px solid #2a2a2a;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.grupo-cola-panel h3 {
+  color: #ffd900;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .item-cola-panel {
   background: #101010;
   border: 1px solid #242424;
