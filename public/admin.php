@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($accion === 'cancion') {
             $seccionActiva = 'cancion';
             $rutaMp3 = guardarArchivoSubido('archivo_mp3', 'canciones', ['mp3'], 'el archivo MP3');
-            $cancionDAO->crear(trim($_POST['titulo']), trim($_POST['duracion']), (int) $_POST['id_album'], $rutaMp3);
+            $cancionDAO->crear(trim($_POST['titulo']), null, (int) $_POST['id_album'], $rutaMp3);
             $mensaje = 'Canción cargada correctamente.';
         }
 
@@ -221,8 +221,6 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
                 <p class="texto-suave">Seleccioná el álbum y subí el archivo MP3.</p>
                 <label>Título</label>
                 <input type="text" name="titulo" required>
-                <label>Duración</label>
-                <input type="text" name="duracion" placeholder="00:03:30">
                 <label>Álbum</label>
                 <select name="id_album" required>
                     <?php foreach ($albumes as $album): ?>
