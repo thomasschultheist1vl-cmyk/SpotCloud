@@ -515,6 +515,57 @@ if (playerBar && audio) {
         });
       });
     });
+
+    if (document.documentElement.dataset.filtroEliminarListo !== '1') {
+      const normalizarBusqueda = (texto) => texto
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      const filtrarOpcionesEliminar = (input) => {
+        const lista = document.getElementById(input.dataset.filtrarLista);
+        const busqueda = normalizarBusqueda(input.value.trim());
+
+        if (!lista) {
+          return;
+        }
+
+        lista.querySelectorAll('.opcion-checkbox').forEach((opcion) => {
+          const textoFiltro = opcion.dataset.textoBusqueda || opcion.textContent;
+          const coincide = normalizarBusqueda(textoFiltro).includes(busqueda);
+          opcion.classList.toggle('opcion-oculta', !coincide);
+
+          if (!coincide) {
+            const checkbox = opcion.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+              checkbox.checked = false;
+            }
+          }
+        });
+      };
+
+      document.documentElement.dataset.filtroEliminarListo = '1';
+      document.addEventListener('keydown', (event) => {
+        if (!event.target.matches('.busqueda-eliminar') || event.key !== 'Enter') {
+          return;
+        }
+
+        event.preventDefault();
+        filtrarOpcionesEliminar(event.target);
+      });
+
+      document.addEventListener('input', (event) => {
+        if (event.target.matches('.busqueda-eliminar')) {
+          filtrarOpcionesEliminar(event.target);
+        }
+      });
+
+      document.addEventListener('search', (event) => {
+        if (event.target.matches('.busqueda-eliminar')) {
+          filtrarOpcionesEliminar(event.target);
+        }
+      });
+    }
   };
 
   const mostrarRespuestaCola = (button, mensaje) => {

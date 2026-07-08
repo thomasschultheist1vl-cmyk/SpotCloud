@@ -118,7 +118,7 @@ unset($_SESSION['mostrar_intro']);
                 </div>
             </div>
 
-            <aside class="panel-lateral">
+            <aside class="panel-lateral panel-historial">
                 <!-- Historial armado con la tabla historial de la base. -->
                 <p class="etiqueta">Historial</p>
                 <h2>Ultimas reproducciones</h2>

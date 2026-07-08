@@ -64,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'artista' => 'artista',
         'album' => 'album',
         'cancion' => 'cancion',
-        'eliminar_albumes' => 'eliminar-albumes',
-        'eliminar_canciones' => 'eliminar-canciones',
+        'eliminar_albumes' => 'eliminar-contenido',
+        'eliminar_canciones' => 'eliminar-contenido',
     ];
     $seccionActiva = $seccionesPorAccion[$accion] ?? $seccionActiva;
 
@@ -95,14 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Baja de canciones seleccionadas.
         if ($accion === 'eliminar_canciones') {
-            $seccionActiva = 'eliminar-canciones';
+            $seccionActiva = 'eliminar-contenido';
             $cantidad = $cancionDAO->eliminarVarios($_POST['ids_canciones'] ?? []);
             $mensaje = $cantidad > 0 ? 'Canciones eliminadas correctamente.' : 'Selecciona al menos una canción.';
         }
 
         // Baja de albumes seleccionados. Sus canciones se eliminan por cascada.
         if ($accion === 'eliminar_albumes') {
-            $seccionActiva = 'eliminar-albumes';
+            $seccionActiva = 'eliminar-contenido';
             $cantidad = $albumDAO->eliminarVarios($_POST['ids_albumes'] ?? []);
             $mensaje = $cantidad > 0 ? 'Álbumes eliminados correctamente.' : 'Selecciona al menos un álbum.';
         }
@@ -141,35 +141,30 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
             <p class="alerta error"><?= limpiar($error) ?></p>
         <?php endif; ?>
 
-        <section class="menu-admin-pasos" aria-label="Opciones de administración">
-            <button class="paso-admin <?= $seccionActiva === 'artista' ? 'activo' : '' ?>" type="button" data-seccion="artista">
-                <span>1</span>
-                <strong>Artista/grupo musical</strong>
-                <small>Crear artista/grupo musical</small>
-            </button>
+        <section class="acciones-admin" aria-label="Opciones de administración">
+            <div class="menu-admin-pasos">
+                <button class="paso-admin <?= $seccionActiva === 'artista' ? 'activo' : '' ?>" type="button" data-seccion="artista">
+                    <span>1</span>
+                    <strong>Artista/grupo musical</strong>
+                    <small>Crear artista/grupo musical</small>
+                </button>
 
-            <button class="paso-admin <?= $seccionActiva === 'album' ? 'activo' : '' ?>" type="button" data-seccion="album">
-                <span>2</span>
-                <strong>Álbum</strong>
-                <small>Cargar portada</small>
-            </button>
+                <button class="paso-admin <?= $seccionActiva === 'album' ? 'activo' : '' ?>" type="button" data-seccion="album">
+                    <span>2</span>
+                    <strong>Álbum</strong>
+                    <small>Cargar portada</small>
+                </button>
 
-            <button class="paso-admin <?= $seccionActiva === 'cancion' ? 'activo' : '' ?>" type="button" data-seccion="cancion">
-                <span>3</span>
-                <strong>Canción</strong>
-                <small>Subir MP3</small>
-            </button>
+                <button class="paso-admin <?= $seccionActiva === 'cancion' ? 'activo' : '' ?>" type="button" data-seccion="cancion">
+                    <span>3</span>
+                    <strong>Canción</strong>
+                    <small>Subir MP3</small>
+                </button>
+            </div>
 
-            <button class="paso-admin <?= $seccionActiva === 'eliminar-albumes' ? 'activo' : '' ?>" type="button" data-seccion="eliminar-albumes">
-                <span>4</span>
-                <strong>Álbumes</strong>
-                <small>Eliminar</small>
-            </button>
-
-            <button class="paso-admin <?= $seccionActiva === 'eliminar-canciones' ? 'activo' : '' ?>" type="button" data-seccion="eliminar-canciones">
-                <span>5</span>
-                <strong>Canciones</strong>
-                <small>Eliminar</small>
+            <button class="paso-admin boton-eliminar-admin <?= $seccionActiva === 'eliminar-contenido' ? 'activo' : '' ?>" type="button" data-seccion="eliminar-contenido">
+                <strong>Eliminar contenido</strong>
+                <small>Borrar álbumes o canciones</small>
             </button>
         </section>
 
@@ -237,15 +232,19 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
                 <button class="boton boton-principal" type="submit">Guardar canción</button>
             </form>
 
-            <!-- Paso 4: baja de albumes. Al borrar un album tambien se borran sus canciones. -->
-            <form class="panel formulario panel-paso panel-paso-ancho seccion-admin <?= $seccionActiva === 'eliminar-albumes' ? 'activa' : '' ?>" data-panel="eliminar-albumes" method="POST" onsubmit="return confirm('¿Seguro que querés eliminar los álbumes seleccionados?');">
+            <section class="seccion-admin eliminar-contenido-admin <?= $seccionActiva === 'eliminar-contenido' ? 'activa' : '' ?>" data-panel="eliminar-contenido">
+            <!-- Baja de albumes. Al borrar un album tambien se borran sus canciones. -->
+            <form class="panel formulario panel-paso panel-paso-ancho" method="POST" onsubmit="return confirm('¿Seguro que querés eliminar los álbumes seleccionados?');">
                 <input type="hidden" name="accion" value="eliminar_albumes">
                 <h2>Eliminar álbumes</h2>
                 <p class="texto-suave">Si borrás un álbum, también se borran sus canciones.</p>
 
-                <div class="lista-checkbox">
+                <label>Buscar álbum</label>
+                <input class="busqueda-eliminar" type="search" placeholder="Filtrar por nombre de álbum o artista" data-filtrar-lista="lista-eliminar-albumes">
+
+                <div class="lista-checkbox" id="lista-eliminar-albumes">
                     <?php foreach ($albumes as $album): ?>
-                        <label class="opcion-checkbox">
+                        <label class="opcion-checkbox" data-texto-busqueda="<?= limpiar($album['titulo'] . ' ' . ($album['artista'] ?? '')) ?>">
                             <input type="checkbox" name="ids_albumes[]" value="<?= (int) $album['id_album'] ?>">
                             <span>
                                 <strong><?= limpiar($album['titulo']) ?></strong>
@@ -258,16 +257,19 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
                 <button class="boton boton-peligro" type="submit">Eliminar álbumes</button>
             </form>
 
-            <!-- Paso 5: baja de canciones individuales. -->
-            <form class="panel formulario panel-paso panel-paso-ancho seccion-admin <?= $seccionActiva === 'eliminar-canciones' ? 'activa' : '' ?>" data-panel="eliminar-canciones" method="POST" onsubmit="return confirm('¿Seguro que querés eliminar las canciones seleccionadas?');">
+            <!-- Baja de canciones individuales. -->
+            <form class="panel formulario panel-paso panel-paso-ancho" method="POST" onsubmit="return confirm('¿Seguro que querés eliminar las canciones seleccionadas?');">
                 <input type="hidden" name="accion" value="eliminar_canciones">
                 <h2>Eliminar canciones</h2>
                 <p class="texto-suave">Seleccioná canciones puntuales sin borrar todo el álbum.</p>
 
-                <div class="lista-checkbox">
+                <label>Buscar canción</label>
+                <input class="busqueda-eliminar" type="search" placeholder="Filtrar por nombre de canción, artista o álbum" data-filtrar-lista="lista-eliminar-canciones">
+
+                <div class="lista-checkbox" id="lista-eliminar-canciones">
                     <?php foreach ($canciones as $cancion): ?>
                         <?php $origen = obtenerOrigenCancion($cancion['ruta_archivo_mp3'] ?? ''); ?>
-                        <label class="opcion-checkbox">
+                        <label class="opcion-checkbox" data-texto-busqueda="<?= limpiar($cancion['titulo']) ?>">
                             <input type="checkbox" name="ids_canciones[]" value="<?= (int) $cancion['id_cancion'] ?>">
                             <span>
                                 <strong><?= limpiar($cancion['titulo']) ?></strong>
@@ -282,6 +284,7 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
 
                 <button class="boton boton-peligro" type="submit">Eliminar canciones</button>
             </form>
+            </section>
         </section>
     </main>
 
@@ -290,4 +293,3 @@ $canciones = $cancionDAO->obtenerTodasConDatos();
     <script src="js/admin.js"></script>
 </body>
 </html>
-

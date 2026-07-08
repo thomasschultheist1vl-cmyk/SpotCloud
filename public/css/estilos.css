@@ -410,11 +410,17 @@ select,
   width: 100%;
 }
 
+.acciones-admin {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 240px);
+  margin-bottom: 24px;
+}
+
 .menu-admin-pasos {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin-bottom: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .paso-admin {
@@ -461,6 +467,20 @@ select,
   font-size: 0.78rem;
 }
 
+.boton-eliminar-admin {
+  align-content: center;
+  border-color: rgba(255, 92, 92, 0.42);
+}
+
+.boton-eliminar-admin:hover,
+.boton-eliminar-admin.activo {
+  border-color: #ff5c5c;
+}
+
+.boton-eliminar-admin.activo {
+  background: rgba(255, 92, 92, 0.12);
+}
+
 .secciones-admin {
   display: grid;
   justify-items: center;
@@ -482,6 +502,17 @@ select,
 
 .panel-paso-ancho {
   max-width: 760px;
+}
+
+.eliminar-contenido-admin.activa {
+  gap: 22px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 1080px;
+  width: 100%;
+}
+
+.busqueda-eliminar {
+  margin-bottom: 4px;
 }
 
 .panel-paso .boton {
@@ -547,6 +578,10 @@ select,
 
 .opcion-checkbox:hover {
   border-color: #ffd900;
+}
+
+.opcion-checkbox.opcion-oculta {
+  display: none;
 }
 
 .opcion-checkbox strong,
@@ -1130,6 +1165,10 @@ select,
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .eliminar-contenido-admin.activa {
+    grid-template-columns: 1fr;
+  }
+
   .barra-reproductor {
     gap: 14px;
     grid-template-columns: minmax(170px, 0.85fr) minmax(300px, 1.25fr) minmax(210px, 0.7fr);
@@ -1150,9 +1189,7 @@ select,
     padding-bottom: 148px;
   }
 
-  .barra-superior,
   .menu-principal,
-  .menu-usuario,
   .destacado,
   .portada-album,
   .encabezado-seccion {
@@ -1162,14 +1199,26 @@ select,
 
   .barra-superior {
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    display: grid;
     gap: 14px;
+    grid-template-areas:
+      "marca usuario"
+      "menu menu";
+    grid-template-columns: minmax(0, 1fr) auto;
     padding: 14px 18px;
     position: sticky;
     top: 0;
     z-index: 70;
   }
 
+  .marca {
+    grid-area: marca;
+    min-height: 28px;
+  }
+
   .menu-principal {
+    grid-area: menu;
+    grid-column: 1 / -1;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 10px;
@@ -1188,12 +1237,12 @@ select,
 
   .menu-usuario {
     align-items: center;
-    border-top: 1px solid #1f1f1f;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 10px;
-    padding-top: 10px;
-    width: 100%;
+    gap: 12px;
+    grid-area: usuario;
+    justify-content: flex-end;
+    min-height: 28px;
   }
 
   .contenedor {
@@ -1208,17 +1257,22 @@ select,
   .dos-columnas,
   .grilla-admin,
   .grilla-eliminar,
+  .acciones-admin,
   .form-busqueda,
   .barra-reproductor {
     grid-template-columns: 1fr;
   }
 
   .menu-admin-pasos {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .paso-admin {
     grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .boton-eliminar-admin {
+    grid-template-columns: 1fr;
   }
 
   .paso-admin span {
@@ -1350,6 +1404,10 @@ select,
 
   .form-busqueda .boton {
     width: 100%;
+  }
+
+  .panel-historial {
+    display: none;
   }
 
   .indicador-origen {
