@@ -1,14 +1,12 @@
 <?php
-// Pantalla principal: muestra el contenido musical despues del login.
+// Pantalla principal publica: cualquiera puede explorar el catalogo.
 require_once __DIR__ . '/../app/helpers/funciones.php';
 require_once __DIR__ . '/../app/dao/AlbumDAO.php';
 require_once __DIR__ . '/../app/dao/CancionDAO.php';
 require_once __DIR__ . '/../app/dao/HistorialDAO.php';
 
-// Si no hay sesion activa, no se permite entrar a la home.
-protegerPagina();
-
 $usuario = usuarioActual();
+$logueado = estaLogueado();
 
 // Los DAO separan las consultas SQL de la vista HTML.
 $albumDAO = new AlbumDAO();
@@ -19,7 +17,7 @@ $historialDAO = new HistorialDAO();
 $albumes = $albumDAO->obtenerTodos();
 $canciones = $cancionDAO->obtenerTodasConDatos();
 $destacada = $canciones[0] ?? null;
-$historial = $historialDAO->obtenerPorUsuario((int) $usuario['id_usuario']);
+$historial = $logueado ? $historialDAO->obtenerPorUsuario((int) $usuario['id_usuario']) : [];
 
 // El slide se muestra solo una vez, justo despues del login.
 $mostrarIntro = $_SESSION['mostrar_intro'] ?? false;
@@ -65,7 +63,7 @@ unset($_SESSION['mostrar_intro']);
                 <p class="etiqueta">Tu biblioteca</p>
                 <h2>Albumes disponibles</h2>
             </div>
-            <a class="boton boton-secundario" href="admin.php">Cargar contenido</a>
+            <a class="boton boton-secundario" href="<?= $logueado ? 'admin.php' : 'login.php' ?>">Cargar contenido</a>
         </section>
 
         <section class="grilla-albumes">
@@ -99,7 +97,7 @@ unset($_SESSION['mostrar_intro']);
                             data-title="<?= limpiar($cancion['titulo']) ?>"
                             data-artist="<?= limpiar($cancion['artista'] ?? '') ?>"
                             data-cover="<?= limpiar($cancion['ruta_portada'] ?? '') ?>"
-                            data-src="<?= limpiar($cancion['ruta_archivo_mp3']) ?>"
+                            data-src="<?= $logueado ? limpiar($cancion['ruta_archivo_mp3']) : '' ?>"
                         >
                             <img src="<?= limpiar($cancion['ruta_portada'] ?? '') ?>" alt="">
                             <div>
@@ -110,8 +108,13 @@ unset($_SESSION['mostrar_intro']);
                                 </span>
                             </div>
                             <div class="acciones-cancion">
-                                <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
-                                <button class="boton-reproducir boton-fila js-agregar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Agregar a fila</button>
+                                <?php if ($logueado): ?>
+                                    <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+                                    <button class="boton-reproducir boton-fila js-agregar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Agregar a fila</button>
+                                <?php else: ?>
+                                    <a class="boton-reproducir" href="login.php">Reproducir</a>
+                                    <a class="boton-reproducir boton-fila" href="login.php">Agregar a fila</a>
+                                <?php endif; ?>
                             </div>
                         </article>
                     <?php endforeach; ?>
@@ -122,7 +125,10 @@ unset($_SESSION['mostrar_intro']);
                 <!-- Historial armado con la tabla historial de la base. -->
                 <p class="etiqueta">Historial</p>
                 <h2>Ultimas reproducciones</h2>
-                <?php if (!$historial): ?>
+                <?php if (!$logueado): ?>
+                    <p class="texto-suave">Inicia sesion para guardar y ver tus reproducciones.</p>
+                    <a class="boton boton-principal" href="login.php">Iniciar sesion</a>
+                <?php elseif (!$historial): ?>
                     <p class="texto-suave">Todavia no reproduciste canciones.</p>
                 <?php endif; ?>
 
@@ -139,7 +145,7 @@ unset($_SESSION['mostrar_intro']);
         </section>
     </main>
 
-    <?php include __DIR__ . '/partials/player.php'; ?>
+    <?php if ($logueado) include __DIR__ . '/partials/player.php'; ?>
     <script src="js/app.js"></script>
 </body>
 </html>

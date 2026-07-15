@@ -4,7 +4,7 @@ require_once __DIR__ . '/../app/helpers/funciones.php';
 require_once __DIR__ . '/../app/dao/AlbumDAO.php';
 require_once __DIR__ . '/../app/dao/CancionDAO.php';
 
-protegerPagina();
+$logueado = estaLogueado();
 
 // El id llega por URL: album.php?id=1
 $idAlbum = (int) ($_GET['id'] ?? 0);
@@ -61,7 +61,7 @@ $canciones = $cancionDAO->obtenerPorAlbum($idAlbum);
                     data-title="<?= limpiar($cancion['titulo']) ?>"
                     data-artist="<?= limpiar($cancion['artista'] ?? '') ?>"
                     data-cover="<?= limpiar($cancion['ruta_portada'] ?? $album['ruta_portada'] ?? '') ?>"
-                    data-src="<?= limpiar($cancion['ruta_archivo_mp3']) ?>"
+                    data-src="<?= $logueado ? limpiar($cancion['ruta_archivo_mp3']) : '' ?>"
                 >
                     <span class="numero-cancion"><?= $numero + 1 ?></span>
                     <div>
@@ -73,15 +73,20 @@ $canciones = $cancionDAO->obtenerPorAlbum($idAlbum);
                     </div>
                     <span class="duracion"><?= limpiar(formatearDuracion($cancion['duracion'])) ?></span>
                     <div class="acciones-cancion">
-                        <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
-                        <button class="boton-reproducir boton-fila js-agregar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Agregar a fila</button>
+                        <?php if ($logueado): ?>
+                            <button class="boton-reproducir js-reproducir-cancion" type="button">Reproducir</button>
+                            <button class="boton-reproducir boton-fila js-agregar-cola" type="button" data-id-cancion="<?= (int) $cancion['id_cancion'] ?>">Agregar a fila</button>
+                        <?php else: ?>
+                            <a class="boton-reproducir" href="login.php">Reproducir</a>
+                            <a class="boton-reproducir boton-fila" href="login.php">Agregar a fila</a>
+                        <?php endif; ?>
                     </div>
                 </article>
             <?php endforeach; ?>
         </section>
     </main>
 
-    <?php include __DIR__ . '/partials/player.php'; ?>
+    <?php if ($logueado) include __DIR__ . '/partials/player.php'; ?>
     <script src="js/app.js"></script>
 </body>
 </html>

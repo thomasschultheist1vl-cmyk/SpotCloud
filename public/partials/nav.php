@@ -1,6 +1,6 @@
 <?php
 $usuarioNav = usuarioActual();
-$nombreNav = $usuarioNav['nombre'] ?? 'Usuario';
+$nombreNav = $usuarioNav['nombre'] ?? 'Visitante';
 $fotoNav = $usuarioNav['foto_perfil'] ?? '';
 $inicialNav = strtoupper(substr($nombreNav, 0, 1));
 ?>
@@ -13,10 +13,11 @@ $inicialNav = strtoupper(substr($nombreNav, 0, 1));
     <nav class="menu-principal">
         <a href="index.php">Inicio</a>
         <a href="buscar.php">Buscar</a>
-        <a href="admin.php">Cargar</a>
+        <a href="<?= $usuarioNav ? 'admin.php' : 'login.php' ?>">Cargar</a>
     </nav>
 
     <div class="menu-usuario">
+        <?php if ($usuarioNav): ?>
         <a class="perfil-link" href="perfil.php" title="Editar perfil">
             <?php if ($fotoNav): ?>
                 <img class="avatar" src="<?= limpiar($fotoNav) ?>" alt="Foto de perfil">
@@ -26,5 +27,9 @@ $inicialNav = strtoupper(substr($nombreNav, 0, 1));
             <span><?= limpiar($nombreNav) ?></span>
         </a>
         <a href="logout.php">Salir</a>
+        <?php else: ?>
+            <a class="enlace-acceso" href="login.php">Iniciar sesion</a>
+            <a class="boton boton-principal enlace-acceso" href="registro.php">Registrarse</a>
+        <?php endif; ?>
     </div>
 </header>
